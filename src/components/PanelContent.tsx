@@ -1,11 +1,8 @@
-import React, { Fragment } from "react";
+import React, { Fragment,useEffect, useState } from "react";
 import { styled, themes, convert } from "@storybook/theming";
 import { TabsState, Placeholder, Button } from "@storybook/components";
+import { useArgs,useParameter  } from "@storybook/manager-api";
 import { List } from "./List";
-
-export const RequestDataButton = styled(Button)({
-  marginTop: "1rem",
-});
 
 type Results = {
   danger: any[];
@@ -26,51 +23,96 @@ export const PanelContent: React.FC<PanelContentProps> = ({
   results,
   fetchData,
   clearData,
-}) => (
-  <TabsState
-    initial="overview"
-    backgroundColor={convert(themes.normal).background.hoverable}
-  >
-    <div
-      id="overview"
-      title="Overview"
-      color={convert(themes.normal).color.positive}
-    >
-      <Placeholder>
-        <Fragment>
-          Addons can gather details about how a story is rendered. This is panel
-          uses a tab pattern. Click the button below to fetch data for the other
-          two tabs.
-        </Fragment>
-        <Fragment>
-          <RequestDataButton
+}) => {
+  const [args, updateArgs,resetArgs] = useArgs();
+  const stateMachine = useParameter('stateMachine',[])
+  const [stateMachineIndex,setStateMachineIndex] = useState(0)
+  const [sleepInterval, setSleepInterval] = useState(1000);
+  const handleInputChange = (e:any) => {
+    setSleepInterval(e.target.value);
+  };
+  const [playInProgress,setPlayInProgress] = useState(false);
+
+  useEffect(() => {
+      if(stateMachine.length>0)updateArgs(stateMachine[0]);
+
+  }, []);
+  return(
+          <>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Button
             secondary
             small
-            onClick={fetchData}
-            style={{ marginRight: 16 }}
-          >
-            Request data
-          </RequestDataButton>
-
-          <RequestDataButton outline small onClick={clearData}>
-            Clear data
-          </RequestDataButton>
-        </Fragment>
-      </Placeholder>
-    </div>
-    <div
-      id="danger"
-      title={`${results.danger.length} Danger`}
-      color={convert(themes.normal).color.negative}
-    >
-      <List items={results.danger} />
-    </div>
-    <div
-      id="warning"
-      title={`${results.warning.length} Warning`}
-      color={convert(themes.normal).color.warning}
-    >
-      <List items={results.warning} />
-    </div>
-  </TabsState>
-);
+            style={{ margin: '10px' }}
+            onClick={
+              ()=>{
+                if(stateMachineIndex+1<stateMachine.length){
+                updateArgs(stateMachine[stateMachineIndex+1]);
+                console.log(stateMachineIndex+1);
+                setStateMachineIndex(prev => prev+1);
+              }
+              }}
+              >
+            Increment state
+          </Button>
+          <Button
+            secondary
+            small
+            style={{ margin: '10px' }}
+            onClick={
+              ()=>{
+                if(stateMachineIndex>0){
+                updateArgs(stateMachine[stateMachineIndex-1]);
+                console.log(stateMachineIndex-1);
+                setStateMachineIndex(prev => prev-1);}
+              }}
+              >
+            Decrement state
+          </Button>
+          </div>
+          <br />
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <label htmlFor="sleepInterval">Time between transition (ms): </label>
+          <input
+            style={{ margin: '5px' }}
+            id="sleepInterval"
+            type="text"
+            value={sleepInterval}
+            onChange={handleInputChange} // Call handleInputChange when the text box value changes
+            />
+          </div> 
+          <br />
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>         
+          <Button
+            secondary
+            small
+            style={{ margin: '5px' }}
+            onClick={
+              async ()=>{
+                if(playInProgress)return;
+                setPlayInProgress(true);
+                for(let i=0;i<stateMachine.length;i++){
+                  updateArgs(stateMachine[i]);
+                  await new Promise(resolve => setTimeout(resolve, sleepInterval));
+                }
+                setPlayInProgress(false);
+              }}
+              >
+            Play State
+          </Button>
+          </div>
+            </>
+  )
+};

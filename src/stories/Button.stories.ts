@@ -30,6 +30,13 @@ export const Primary: Story = {
     primary: true,
     label: "Button",
   },
+  parameters: {
+    stateMachine: [
+      { label: "State 1" },
+      { label: "State 2" },
+      { label: "State 3" },
+    ],
+  },
 };
 
 export const Secondary: Story = {
