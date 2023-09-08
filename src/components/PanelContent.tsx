@@ -1,28 +1,9 @@
-import React, { Fragment,useEffect, useState } from "react";
-import { styled, themes, convert } from "@storybook/theming";
-import { TabsState, Placeholder, Button } from "@storybook/components";
+import React, { useEffect, useState } from "react";
+import { Button } from "@storybook/components";
 import { useArgs,useParameter  } from "@storybook/manager-api";
-import { List } from "./List";
 
-type Results = {
-  danger: any[];
-  warning: any[];
-};
+export const PanelContent: React.FC = ({
 
-interface PanelContentProps {
-  results: Results;
-  fetchData: () => void;
-  clearData: () => void;
-}
-
-/**
- * Checkout https://github.com/storybookjs/storybook/blob/next/code/addons/jest/src/components/Panel.tsx
- * for a real world example
- */
-export const PanelContent: React.FC<PanelContentProps> = ({
-  results,
-  fetchData,
-  clearData,
 }) => {
   const [args, updateArgs,resetArgs] = useArgs();
   const stateMachine = useParameter('stateMachine',[])
@@ -86,7 +67,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             id="sleepInterval"
             type="text"
             value={sleepInterval}
-            onChange={handleInputChange} // Call handleInputChange when the text box value changes
+            onChange={handleInputChange}
             />
           </div> 
           <br />
