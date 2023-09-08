@@ -1,9 +1,10 @@
 {
   "name": "StorybookStateAddon",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Visually test state transitions ",
   "keywords": [
-    "state testing", "storybook-addons"
+    "state testing",
+    "storybook-addons"
   ],
   "repository": {
     "type": "git",
