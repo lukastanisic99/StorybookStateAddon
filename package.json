@@ -1,6 +1,6 @@
 {
   "name": "storybook-state-addon",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Visually test state transitions ",
   "keywords": [
     "state testing",

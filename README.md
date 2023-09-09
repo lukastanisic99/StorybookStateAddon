@@ -1,92 +1,77 @@
 # Storybook Addon State Testing
-Visually test state transitions 
+
+Visually test state transitions
 
 ### Development scripts
 
 - `yarn start` runs babel in watch mode and starts Storybook
 - `yarn build` build and package your addon code
 
-### Switch from TypeScript to JavaScript
+### Setup in other projects/stories
 
-Don't want to use TypeScript? We offer a handy eject command: `yarn eject-ts`
-
-This will convert all code to JS. It is a destructive process, so we recommended running this before you start writing any code.
-
-## What's included?
-
-![Demo](https://user-images.githubusercontent.com/42671/107857205-e7044380-6dfa-11eb-8718-ad02e3ba1a3f.gif)
-
-The addon code lives in `src`. It demonstrates all core addon related concepts. The three [UI paradigms](https://storybook.js.org/docs/react/addons/addon-types#ui-based-addons)
-
-- `src/Tool.tsx`
-- `src/Panel.tsx`
-- `src/Tab.tsx`
-
-Which, along with the addon itself, are registered in `src/manager.ts`.
-
-Managing State and interacting with a story:
-
-- `src/withGlobals.ts` & `src/Tool.tsx` demonstrates how to use `useGlobals` to manage global state and modify the contents of a Story.
-- `src/withRoundTrip.ts` & `src/Panel.tsx` demonstrates two-way communication using channels.
-- `src/Tab.tsx` demonstrates how to use `useParameter` to access the current story's parameters.
-
-Your addon might use one or more of these patterns. Feel free to delete unused code. Update `src/manager.ts` and `src/preview.ts` accordingly.
-
-Lastly, configure you addon name in `src/constants.ts`.
-
-### Metadata
-
-Storybook addons are listed in the [catalog](https://storybook.js.org/addons) and distributed via npm. The catalog is populated by querying npm's registry for Storybook-specific metadata in `package.json`. This project has been configured with sample data. Learn more about available options in the [Addon metadata docs](https://storybook.js.org/docs/react/addons/addon-catalog#addon-metadata).
-
-## Release Management
-
-### Setup
-
-This project is configured to use [auto](https://github.com/intuit/auto) for release management. It generates a changelog and pushes it to both GitHub and npm. Therefore, you need to configure access to both:
-
-- [`NPM_TOKEN`](https://docs.npmjs.com/creating-and-viewing-access-tokens#creating-access-tokens) Create a token with both _Read and Publish_ permissions.
-- [`GH_TOKEN`](https://github.com/settings/tokens) Create a token with the `repo` scope.
-
-Then open your `package.json` and edit the following fields:
-
-- `name`
-- `author`
-- `repository`
-
-#### Local
-
-To use `auto` locally create a `.env` file at the root of your project and add your tokens to it:
+Install the addon
 
 ```bash
-GH_TOKEN=<value you just got from GitHub>
-NPM_TOKEN=<value you just got from npm>
+npm install storybook-state-addon
 ```
 
-Lastly, **create labels on GitHub**. You’ll use these labels in the future when making changes to the package.
+Register the addon in .storybook/main.js
 
-```bash
-npx auto create-labels
+```js
+"addons": [
+    ...
+    "storybook-state-addon"
+  ],
 ```
 
-If you check on GitHub, you’ll now see a set of labels that `auto` would like you to use. Use these to tag future pull requests.
+### When you run Storybook, you should see a `State Transition` panel in the addons panel.
 
-#### GitHub Actions
+![Alt text](image.png)
 
-This template comes with GitHub actions already set up to publish your addon anytime someone pushes to your repository.
+### Usage
 
-Go to `Settings > Secrets`, click `New repository secret`, and add your `NPM_TOKEN`.
+In your stories, use `parameters` to pass a `stateMachine` array to the addon. The array should contain objects that represent Storybook args (component props) for different states you want to test. You can transition through state manually my clicking the `Increment state` and `Decrement state` buttons in the `State Transition` panel. You can also play all the state transitions automatically by clicking the `Play State` button which will trigger all state transition automatically from the beginning with a delay (the delay is in milliseconds specified in the input field).
 
-### Creating a release
-
-To create a release locally you can run the following command, otherwise the GitHub action will make the release for you.
-
-```sh
-yarn release
+```js
+parameters: {
+    stateMachine: [
+      { label: "State 1" },
+      { label: "State 2" },
+      { label: "State 3" },
+    ],
+  },
 ```
 
-That will:
+### Example
 
-- Build and package the addon code
-- Bump the version
-- Push a release to GitHub and npm
-- Push a changelog to GitHub
+```js
+import type { Meta, StoryObj } from "@storybook/react";
+
+import { Button } from "./Button";
+
+// More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
+const meta: Meta<typeof Button> = {
+  title: "Example/Button",
+  component: Button,
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof Button>;
+
+// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
+export const Primary: Story = {
+  // More on args: https://storybook.js.org/docs/react/writing-stories/args
+  args: {
+    primary: true,
+    label: "Button",
+  },
+  parameters: {
+    stateMachine: [
+      { label: "State 1" },
+      { label: "State 2" },
+      { label: "State 3" },
+    ],
+  },
+};
+```
